@@ -13,11 +13,11 @@ git clone https://github.com/labbsr0x/githunter-web-api.git
 Enter root directory from the project and install all dependencies from `node_modules`.
 ​
 ```bash
-cd githunter-web-api && yarn
+yarn install
 ```
 OR
 ```bash
-cd githunter-web-api && npm i
+npm install
 ```
 ​
 
@@ -29,7 +29,7 @@ yarn dev
 ```
 OR
 ```bash
-npm dev
+npm run dev
 ```
 
 But if you want to run in production, run the following commands:
