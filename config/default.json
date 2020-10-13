@@ -1,0 +1,7 @@
+{
+  "server": {
+    "url": "localhost",
+    "port": 5000,
+    "baseDir": "/"
+  }
+}
