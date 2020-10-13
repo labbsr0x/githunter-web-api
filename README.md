@@ -13,7 +13,7 @@ git clone https://github.com/labbsr0x/githunter-web-api.git
 Enter root directory from the project and install all dependencies from `node_modules`.
 ​
 ```bash
-cd githunter-web-api && yarn install
+yarn install
 ```
 OR
 ```bash
