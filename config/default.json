@@ -4,7 +4,7 @@
     "port": 5000,
     "baseDir": "/"
   },
-  "starws": {
+  "githunterBindStarws": {
     "host": "http://localhost",
     "port": 3005,
     "endpoints": {
