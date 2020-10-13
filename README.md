@@ -17,7 +17,7 @@ yarn install
 ```
 OR
 ```bash
-cd githunter-web-api && npm install
+npm install
 ```
 ​
 
