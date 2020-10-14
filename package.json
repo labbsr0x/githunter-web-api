@@ -21,10 +21,12 @@
     }
   },
   "dependencies": {
+    "axios": "^0.20.0",
     "config": "^3.3.2",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "node-config-ts": "^3.1.0"
+    "node-config-ts": "^3.1.0",
+    "qs": "^6.9.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.7",
