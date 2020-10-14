@@ -3,5 +3,12 @@
     "url": "localhost",
     "port": 5000,
     "baseDir": "/"
+  },
+  "githunterBindStarws": {
+    "host": "http://localhost",
+    "port": 3005,
+    "endpoints": {
+      "metrics": "/metrics"
+    }
   }
 }
