@@ -9,6 +9,13 @@
     "port": 3005,
     "endpoints": {
       "metrics": "/metrics"
-    }
+    },
+    "nodes": {
+      "repositoryStats": "repositoryStats"
+    },
+    "providers": [
+      "github",
+      "gitlab"
+    ]
   }
 }
