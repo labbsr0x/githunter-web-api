@@ -3,8 +3,8 @@ import { config } from 'node-config-ts';
 import { ParsedQs } from 'qs';
 import HttpClient from './http-client';
 
-interface RepositoryStats {
-  dateTime: string;
+export interface RepositoryStats {
+  dateTime: moment.Moment;
   owner: string;
   name: string;
   frequency: number;
