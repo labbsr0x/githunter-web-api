@@ -1,7 +1,6 @@
 import moment from 'moment';
 import { config } from 'node-config-ts';
 
-import { ParsedQs } from 'qs';
 import Starws, {
   RepositoryStats,
   StarwsRequest,
