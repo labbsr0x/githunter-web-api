@@ -1,10 +1,9 @@
-import { AxiosError, AxiosResponse } from 'axios';
 import moment from 'moment';
 import { config } from 'node-config-ts';
 
-import { ParsedQs } from 'qs';
 import Starws, {
   RepositoryStats,
+  StarwsRequest,
 } from '../external-services/githunter-bind-starws';
 
 export interface DataRequest {
@@ -75,12 +74,10 @@ class RepositoryByName {
   }
 
   private async getData(data: DataRequest): Promise<RepositoryStats[]> {
-    const qs = <ParsedQs>(<unknown>data);
+    const qs = <StarwsRequest>(<unknown>data);
     qs.node = this.node;
 
-    const promises: Promise<
-      AxiosResponse<RepositoryStats[] | AxiosError>
-    >[] = [];
+    const promises: Promise<RepositoryStats[]>[] = [];
     this.providers.forEach(p => {
       qs.provider = p;
       promises.push(this.starws.getRepositoriesStats(qs));

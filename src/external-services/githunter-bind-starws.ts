@@ -1,6 +1,5 @@
-import { AxiosError, AxiosResponse } from 'axios';
+import moment from 'moment';
 import { config } from 'node-config-ts';
-import { ParsedQs } from 'qs';
 import HttpClient from './http-client';
 
 export interface RepositoryStats {
@@ -18,6 +17,18 @@ export interface RepositoryStats {
   language: string[];
 }
 
+export interface StarwsRequest {
+  startDateTime: string;
+  endDateTime: string;
+  provider: string;
+  node: string;
+}
+
+export interface StarwsResponse {
+  status: number;
+  data: RepositoryStats[];
+}
+
 class Starws extends HttpClient {
   constructor() {
     const url = `${config.githunterBindStarws.host}:${config.githunterBindStarws.port}`;
@@ -25,12 +36,20 @@ class Starws extends HttpClient {
   }
 
   public async getRepositoriesStats(
-    params: ParsedQs,
-  ): Promise<AxiosResponse<RepositoryStats[] | AxiosError>> {
+    params: StarwsRequest,
+  ): Promise<StarwsResponse> {
     try {
       const path = config.githunterBindStarws.endpoints.metrics;
-      const response = await this.get(path, params);
-      return response;
+      const response = await this.instance.get<RepositoryStats[]>(path, {
+        params,
+      });
+
+      const starwsResp: StarwsResponse = {
+        status: response.status,
+        data: response.data,
+      };
+
+      return starwsResp;
     } catch (err) {
       return err;
     }
