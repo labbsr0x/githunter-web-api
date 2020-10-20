@@ -1,18 +1,16 @@
-import { AxiosError, AxiosResponse } from 'axios';
-import moment, { unix } from 'moment';
+import moment from 'moment';
 import { config } from 'node-config-ts';
 
 import Starws, {
   RepositoryStats,
   StarwsRequest,
-  StarwsResponse,
 } from '../external-services/githunter-bind-starws';
 
 export interface RepositoryDataRequest {
-  startDateTime: moment.Moment | string; //
-  endDateTime: moment.Moment | string; //
+  startDateTime: moment.Moment | string; // default: 30 days ago
+  endDateTime: moment.Moment | string; // default: next 30 days
   provider: string; // default: all
-  limit: number; // default: 100
+  limit: string; // default: 100
   languages: string | string[]; // default: all
 }
 
@@ -48,14 +46,15 @@ class RepositoryMetrics {
     }
     dataStarws = RepositoryMetrics.groupByUniqueRepo(dataStarws);
     dataStarws = RepositoryMetrics.sortByLastRepo(dataStarws);
+    const limit = Number(queryParamsValidate.limit);
     if (queryParamsValidate.languages?.length > 0) {
       const dataStarwsFilterByLangs = RepositoryMetrics.filterRepoByLanguages(
         dataStarws,
-        queryParamsValidate.languages,
+        queryParamsValidate.languages as string[],
       );
-      return dataStarwsFilterByLangs.splice(0, queryParamsValidate.limit);
+      return dataStarwsFilterByLangs.splice(0, limit);
     }
-    return dataStarws.splice(0, queryParamsValidate.limit); // by default, last 100 repos OR limit ;
+    return dataStarws.splice(0, limit); // by default, last 100 repos OR limit ;
   }
 
   private static validateRequest(
@@ -86,7 +85,7 @@ class RepositoryMetrics {
     }
 
     if (!limit) {
-      queryParamsValidate.limit = 100;
+      queryParamsValidate.limit = '100';
     }
 
     if (languages) {
@@ -101,20 +100,19 @@ class RepositoryMetrics {
   ): Promise<RepositoryStats[]> {
     const providers: string[] = [];
     if (queryParams.provider.match('all')) {
-      providers.push('github');
-      providers.push('gitlab');
+      this.providers.forEach(provider => {
+        providers.push(provider);
+      });
     }
     providers.push(queryParams.provider);
 
-    const promises: Promise<
-      AxiosResponse<RepositoryStats[] | AxiosError>
-    >[] = [];
+    const promises: Promise<RepositoryStats[]>[] = [];
     providers.forEach((provider: string) => {
       const starwsQueryParams: StarwsRequest = {
-        startDateTime: queryParams.startDateTime,
-        endDateTime: queryParams.endDateTime,
+        startDateTime: queryParams.startDateTime as string,
+        endDateTime: queryParams.endDateTime as string,
         provider,
-        node: 'repositoryStats',
+        node: this.node,
       };
       promises.push(this.starws.getRepositoriesStats(starwsQueryParams));
     });

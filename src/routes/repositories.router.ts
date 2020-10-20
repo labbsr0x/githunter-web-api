@@ -6,15 +6,22 @@ import RepositoryByName, {
   ErrorResponse,
 } from '../services/RepositoryByName';
 
+import RepositoryMetrics, {
+  RepositoryDataRequest,
+} from '../services/RepositoryMetrics';
+
 const repositoriesRouter = Router();
 const service = new RepositoryByName();
+const metricsService = new RepositoryMetrics();
 
 repositoriesRouter.get(
   '/name/:name/owner/:owner',
   async (request, response) => {
     try {
       const { owner, name } = request.params;
-      const { startDateTime, endDateTime } = request.query;
+      const filters = request.query;
+      const startDateTime = filters.startDateTime as string;
+      const endDateTime = filters.endDateTime as string;
       const repositoryRequest: DataRequest = {
         owner,
         name,
@@ -38,5 +45,37 @@ repositoriesRouter.get(
     }
   },
 );
+
+repositoriesRouter.get('/', async (request, response) => {
+  try {
+    const filters = request.query;
+    const startDateTime = filters.startDateTime as string;
+    const endDateTime = filters.endDateTime as string;
+    const provider = filters.provider as string;
+    const limit = filters.limit as string;
+    const languages = filters.languages as string;
+    const repositoryRequest: RepositoryDataRequest = {
+      startDateTime,
+      endDateTime,
+      provider,
+      limit,
+      languages,
+    };
+
+    const data:
+      | RepositoryStats[]
+      | ErrorResponse = await metricsService.execute(repositoryRequest);
+
+    if ('status' in data) {
+      return response
+        .status((data as ErrorResponse).status)
+        .json({ message: (data as ErrorResponse).message });
+    }
+
+    return response.status(200).json({ data });
+  } catch (err) {
+    return response.status(500).send({ error: err.message });
+  }
+});
 
 export default repositoriesRouter;
