@@ -43,7 +43,7 @@ class RepositoryByName {
     }
 
     let dataStarws = await this.getData(data);
-    if (dataStarws && dataStarws.length === 0) {
+    if (dataStarws?.length === 0) {
       const e: ErrorResponse = {
         message: 'No data.',
         status: 200,
@@ -51,9 +51,21 @@ class RepositoryByName {
       return e;
     }
 
-    dataStarws = RepositoryByName.filter(dataStarws);
+    dataStarws = RepositoryByName.filterByNameRepository(
+      dataStarws,
+      data.owner,
+      data.name,
+    );
+    if (dataStarws?.length === 0) {
+      const e: ErrorResponse = {
+        message: 'No data.',
+        status: 200,
+      };
+      return e;
+    }
 
-    return dataStarws;
+    const repoHistoricOrdened = RepositoryByName.sortByDateTime(dataStarws);
+    return repoHistoricOrdened;
   }
 
   private static validateRequest(d: DataRequest): DataRequest | null {
@@ -106,27 +118,23 @@ class RepositoryByName {
     return responseData;
   }
 
-  private static filter(d: RepositoryStats[]): RepositoryStats[] {
-    const data: RepositoryStats[] = [];
-    d.forEach(i => {
-      // Getting unique owner/name and most recent by dateTime
-      const unique = d
-        .filter(f => f.owner === i.owner && f.name === i.name)
-        .reduce((a, b) => (a.dateTime.isAfter(b.dateTime) ? a : b));
-      // check if already exists in array
-      if (!data.some(elem => elem === unique)) {
-        data.push(unique);
-      }
-    });
-    // Sort the array by suming all dimensions
-    const sortedData = data.sort((a, b) => {
-      const aSum =
-        a.frequency + a.definitionOSS + a.popularity + a.friendly + a.quality;
-      const bSum =
-        b.frequency + b.definitionOSS + b.popularity + b.friendly + b.quality;
-      return bSum - aSum;
-    });
-    return sortedData;
+  private static filterByNameRepository(
+    d: RepositoryStats[],
+    owner: string,
+    name: string,
+  ): RepositoryStats[] {
+    let repoHistoric: RepositoryStats[] = [];
+    repoHistoric = d.filter(i => i.owner === owner && i.name === name);
+    return repoHistoric;
+  }
+
+  private static sortByDateTime(
+    repoHistoric: RepositoryStats[],
+  ): RepositoryStats[] {
+    const historicOrdened = repoHistoric.sort((a, b) =>
+      b.dateTime.diff(a.dateTime),
+    );
+    return historicOrdened;
   }
 }
 
