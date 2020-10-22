@@ -39,7 +39,7 @@ repositoriesRouter.get(
           .json({ message: (data as ErrorResponse).message });
       }
 
-      return response.status(200).json({ data });
+      return response.status(200).json(data);
     } catch (err) {
       return response.status(400).json({ error: err.message });
     }
@@ -72,7 +72,7 @@ repositoriesRouter.get('/', async (request, response) => {
         .json({ message: (data as ErrorResponse).message });
     }
 
-    return response.status(200).json({ data });
+    return response.status(200).json(data);
   } catch (err) {
     return response.status(500).send({ error: err.message });
   }
