@@ -24,6 +24,9 @@ export interface StarwsRequest {
   node: string;
 }
 
+interface ReposStats {
+  data: RepositoryStats[];
+}
 export interface StarwsResponse {
   status: number;
   data: RepositoryStats[];
@@ -40,13 +43,13 @@ class Starws extends HttpClient {
   ): Promise<StarwsResponse> {
     try {
       const path = config.githunterBindStarws.endpoints.metrics;
-      const response = await this.instance.get<RepositoryStats[]>(path, {
+      const response = await this.instance.get(path, {
         params,
       });
 
       const starwsResp: StarwsResponse = {
         status: response.status,
-        data: response.data,
+        data: ((response.data as unknown) as ReposStats).data,
       };
 
       return starwsResp;
