@@ -11,7 +11,8 @@ declare module "node-config-ts" {
     endpoints: Endpoints
     nodes: Node,
     providers: string[],
-    limit: number
+    limit: number,
+    quantityDaysDefaultSearch: number
   }
   interface Node {
     repositoryStats: string
