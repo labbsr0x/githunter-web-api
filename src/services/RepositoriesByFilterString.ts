@@ -23,12 +23,16 @@ class RepositoriesFilterString {
 
   private providers: string[];
 
+  private quantityDaysDefaultSearch: number;
+
   private limit: number;
 
   constructor() {
     this.starws = new Starws();
     this.node = config.githunterBindStarws.nodes.repositoryStats;
     this.providers = config.githunterBindStarws.providers;
+    this.quantityDaysDefaultSearch =
+      config.githunterBindStarws.quantityDaysDefaultSearch;
     this.limit = config.githunterBindStarws.limit;
   }
 
@@ -42,7 +46,7 @@ class RepositoriesFilterString {
       };
       return e;
     }
-    const queryParamsValidate = RepositoriesFilterString.validateParamsRequest();
+    const queryParamsValidate = this.validateParamsRequest();
     let dataStarws = await this.getData(queryParamsValidate);
     dataStarws = RepositoriesFilterString.groupByUniqueRepo(dataStarws);
     dataStarws = RepositoriesFilterString.sortByLastRepo(dataStarws);
@@ -61,9 +65,11 @@ class RepositoriesFilterString {
     return dataStarws.splice(0, this.limit);
   }
 
-  private static validateParamsRequest(): StarwsRequest {
+  private validateParamsRequest(): StarwsRequest {
     const queryParamsValidate: StarwsRequest = {
-      startDateTime: moment().subtract(365, 'days').format(),
+      startDateTime: moment()
+        .subtract(this.quantityDaysDefaultSearch, 'days')
+        .format(),
       endDateTime: moment().format(),
       provider: '',
       node: '',

@@ -17,6 +17,7 @@
       "github",
       "gitlab"
     ],
-    "limit": 100
+    "limit": 100,
+    "quantityDaysDefaultSearch": 365
   }
 }
