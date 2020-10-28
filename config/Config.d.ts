@@ -10,7 +10,8 @@ declare module "node-config-ts" {
     port: number
     endpoints: Endpoints
     nodes: Node,
-    providers: string[]
+    providers: string[],
+    limit: number
   }
   interface Node {
     repositoryStats: string
