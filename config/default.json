@@ -16,6 +16,7 @@
     "providers": [
       "github",
       "gitlab"
-    ]
+    ],
+    "limit": 100
   }
 }
