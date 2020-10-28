@@ -43,13 +43,13 @@ class Starws extends HttpClient {
   ): Promise<StarwsResponse> {
     try {
       const path = config.githunterBindStarws.endpoints.metrics;
-      const response = await this.instance.get(path, {
+      const response = await this.instance.get<StarwsResponse>(path, {
         params,
       });
 
       const starwsResp: StarwsResponse = {
         status: response.status,
-        data: ((response.data as unknown) as ReposStats).data,
+        data: (response.data as ReposStats).data,
       };
 
       return starwsResp;
