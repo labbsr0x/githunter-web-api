@@ -4,6 +4,7 @@ import { config } from 'node-config-ts';
 import Starws, {
   RepositoryStats,
   StarwsRequest,
+  StarwsResponse,
 } from '../external-services/githunter-bind-starws';
 
 export interface RepositoryDataRequest {
@@ -106,7 +107,7 @@ class RepositoryMetrics {
     }
     providers.push(queryParams.provider);
 
-    const promises: Promise<RepositoryStats[]>[] = [];
+    const promises: Promise<StarwsResponse>[] = [];
     providers.forEach((provider: string) => {
       const starwsQueryParams: StarwsRequest = {
         startDateTime: queryParams.startDateTime as string,
@@ -114,26 +115,31 @@ class RepositoryMetrics {
         provider,
         node: this.node,
       };
-      promises.push(this.starws.getRepositoriesStats(starwsQueryParams));
+      const starWsResponses = this.starws.getRepositoriesStats(
+        starwsQueryParams,
+      );
+
+      promises.push(starWsResponses);
     });
+
     const responses = await Promise.all(promises);
 
     let responseData: RepositoryStats[] = [];
     if (responses?.length > 0) {
-      responses.forEach(r => {
-        if (r.status === 200 && r.data?.data) {
+      responses.forEach(response => {
+        if (response.status === 200 && response.data) {
           // Make dateTime as Moment
-          r.data.data.map((i: RepositoryStats) => {
+          const repos = response.data;
+          repos.map((i: RepositoryStats) => {
             const d: RepositoryStats = i;
             if (i.dateTime) {
               d.dateTime = moment(i.dateTime);
             }
             return d;
           });
-          responseData = responseData.concat(r.data.data);
+          responseData = responseData.concat(repos);
         } else {
-          console.log('Error getting data from starws.');
-          console.log(r);
+          console.log(`Error getting data from starws. \nmsg: ${response}`);
         }
       });
     }

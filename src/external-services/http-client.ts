@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 abstract class HttpClient {
   protected instance: AxiosInstance;
@@ -11,7 +11,20 @@ abstract class HttpClient {
       timeout: 120000,
       headers: headers || headerDefault,
     });
+
+    this.initializeResponseInterceptor();
   }
+
+  private initializeResponseInterceptor = () => {
+    this.instance.interceptors.response.use(
+      this.handleResponse,
+      this.handleError,
+    );
+  };
+
+  private handleResponse = ({ data }: AxiosResponse) => data;
+
+  protected handleError = (error: any) => Promise.reject(error);
 }
 
 export default HttpClient;

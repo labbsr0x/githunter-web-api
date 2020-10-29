@@ -24,9 +24,13 @@ export interface StarwsRequest {
   node: string;
 }
 
+interface ReposStats {
+  data: RepositoryStats[];
+}
 export interface StarwsResponse {
   status: number;
   data: RepositoryStats[];
+  message?: string;
 }
 
 class Starws extends HttpClient {
@@ -45,13 +49,18 @@ class Starws extends HttpClient {
       });
 
       const starwsResp: StarwsResponse = {
-        status: response.status,
+        status: 200, // reponse it's okay!
         data: response.data,
       };
 
       return starwsResp;
     } catch (err) {
-      return err;
+      const starwsResp: StarwsResponse = {
+        status: 400, // reponse is not okay!
+        data: [],
+        message: err.message,
+      };
+      return starwsResp;
     }
   }
 }
