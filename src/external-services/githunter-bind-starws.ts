@@ -58,7 +58,7 @@ class Starws extends HttpClient {
       const starwsResp: StarwsResponse = {
         status: 400, // reponse is not okay!
         data: [],
-        message: `Erro to get data from Githunter-Bind: \nDetails: ${err}`,
+        message: err,
       };
       return starwsResp;
     }
