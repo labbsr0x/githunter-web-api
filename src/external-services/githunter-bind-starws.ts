@@ -30,6 +30,7 @@ interface ReposStats {
 export interface StarwsResponse {
   status: number;
   data: RepositoryStats[];
+  message?: string;
 }
 
 class Starws extends HttpClient {
@@ -43,18 +44,23 @@ class Starws extends HttpClient {
   ): Promise<StarwsResponse> {
     try {
       const path = config.githunterBindStarws.endpoints.metrics;
-      const response = await this.instance.get<StarwsResponse>(path, {
+      const response = await this.instance.get<RepositoryStats[]>(path, {
         params,
       });
 
       const starwsResp: StarwsResponse = {
-        status: response.status,
-        data: (response.data as ReposStats).data,
+        status: 200, // reponse it's okay!
+        data: response.data,
       };
 
       return starwsResp;
     } catch (err) {
-      return err;
+      const starwsResp: StarwsResponse = {
+        status: 400, // reponse is not okay!
+        data: [],
+        message: `Erro to get data from Githunter-Bind: \nDetails: ${err}`,
+      };
+      return starwsResp;
     }
   }
 }
