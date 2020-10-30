@@ -18,6 +18,6 @@
       "gitlab"
     ],
     "limit": 100,
-    "quantityDaysDefaultSearch": 365
+    "quantityDaysDefault": 365
   }
 }

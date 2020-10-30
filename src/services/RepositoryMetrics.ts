@@ -13,6 +13,7 @@ export interface RepositoryDataRequest {
   provider: string; // default: all
   limit: string; // default: 100
   languages: string | string[]; // default: all
+  filtersString?: string; // filter name or owner de n repos
 }
 
 export interface ErrorResponse {
@@ -27,38 +28,72 @@ class RepositoryMetrics {
 
   private providers: string[];
 
+  private defaultDays: number;
+
   constructor() {
     this.starws = new Starws();
     this.node = config.githunterBindStarws.nodes.repositoryStats;
     this.providers = config.githunterBindStarws.providers;
+    this.defaultDays = config.githunterBindStarws.quantityDaysDefault;
   }
 
   public async execute(
     request: RepositoryDataRequest,
   ): Promise<RepositoryStats[] | ErrorResponse> {
-    const queryParamsValidate = RepositoryMetrics.validateRequest(request);
+    const queryParamsValidate = this.validateRequest(request);
     let dataStarws: RepositoryStats[] = await this.getData(queryParamsValidate);
     if (dataStarws && dataStarws.length === 0) {
       const e: ErrorResponse = {
         message: 'No data.',
-        status: 200,
+        status: 204,
       };
       return e;
     }
     dataStarws = RepositoryMetrics.groupByUniqueRepo(dataStarws);
     dataStarws = RepositoryMetrics.sortByLastRepo(dataStarws);
     const limit = Number(queryParamsValidate.limit);
+    // Filter by language
     if (queryParamsValidate.languages?.length > 0) {
       const dataStarwsFilterByLangs = RepositoryMetrics.filterRepoByLanguages(
         dataStarws,
         queryParamsValidate.languages as string[],
       );
+      // if is empty
+      if (dataStarwsFilterByLangs && dataStarwsFilterByLangs.length === 0) {
+        const e: ErrorResponse = {
+          message: 'No data.',
+          status: 204,
+        };
+        return e;
+      }
+
       return dataStarwsFilterByLangs.splice(0, limit);
     }
+    // Filter by repository name or owner or both
+    if (queryParamsValidate.filtersString) {
+      const dataStarwsFilterByNameOwner = RepositoryMetrics.filterByNameOwner(
+        dataStarws,
+        queryParamsValidate.filtersString,
+      );
+      // if is empty
+      if (
+        dataStarwsFilterByNameOwner &&
+        dataStarwsFilterByNameOwner.length === 0
+      ) {
+        const e: ErrorResponse = {
+          message: 'No data.',
+          status: 204,
+        };
+        return e;
+      }
+
+      return dataStarwsFilterByNameOwner.splice(0, limit);
+    }
+    // No more filters, return
     return dataStarws.splice(0, limit); // by default, last 100 repos OR limit ;
   }
 
-  private static validateRequest(
+  private validateRequest(
     queryParams: RepositoryDataRequest,
   ): RepositoryDataRequest {
     const {
@@ -73,7 +108,7 @@ class RepositoryMetrics {
 
     if (!startDateTime) {
       queryParamsValidate.startDateTime = moment()
-        .subtract(30, 'days')
+        .subtract(this.defaultDays, 'days')
         .format();
     }
 
@@ -82,7 +117,7 @@ class RepositoryMetrics {
     }
 
     if (!provider) {
-      queryParamsValidate.provider = 'all';
+      queryParamsValidate.provider = '';
     }
 
     if (!limit) {
@@ -100,7 +135,7 @@ class RepositoryMetrics {
     queryParams: RepositoryDataRequest,
   ): Promise<RepositoryStats[]> {
     const providers: string[] = [];
-    if (queryParams.provider.match('all')) {
+    if (!queryParams.provider) {
       this.providers.forEach(provider => {
         providers.push(provider);
       });
@@ -189,6 +224,18 @@ class RepositoryMetrics {
       }
     });
     return data;
+  }
+
+  private static filterByNameOwner(
+    data: RepositoryStats[],
+    filterString: string,
+  ): RepositoryStats[] | never[] {
+    const reposFiltered: RepositoryStats[] = data.filter(
+      repository =>
+        repository.name.includes(filterString) ||
+        repository.owner.includes(filterString),
+    );
+    return reposFiltered;
   }
 }
 
