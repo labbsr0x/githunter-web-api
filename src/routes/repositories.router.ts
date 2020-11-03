@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import logger from '../config/logger';
 import { RepositoryStats } from '../external-services/githunter-bind-starws';
 
 import RepositoryByName, {
@@ -39,23 +40,29 @@ repositoriesRouter.get(
           .json({ message: (data as ErrorResponse).message });
       }
 
+      logger.info(
+        `GET Request to Githunter-Web-API in root path to get history of metrics of one repository successfully!`,
+      );
       return response.status(200).json(data);
     } catch (err) {
+      logger.error(
+        `GET Request to Githunter-Web-API in root path to get history of metrics of one repository failure! ${err.message}`,
+      );
       return response.status(400).json({ error: err.message });
     }
   },
 );
 
 repositoriesRouter.get('/', async (request, response) => {
-  try {
-    const filters = request.query;
-    const startDateTime = filters.startDateTime as string;
-    const endDateTime = filters.endDateTime as string;
-    const provider = filters.provider as string;
-    const limit = filters.limit as string;
-    const languages = filters.languages as string;
-    const filtersString = filters.filtersString as string;
+  const filters = request.query;
+  const startDateTime = filters.startDateTime as string;
+  const endDateTime = filters.endDateTime as string;
+  const provider = filters.provider as string;
+  const limit = filters.limit as string;
+  const languages = filters.languages as string;
+  const filtersString = filters.filtersString as string;
 
+  try {
     const repositoryRequest: RepositoryDataRequest = {
       startDateTime,
       endDateTime,
@@ -75,8 +82,27 @@ repositoriesRouter.get('/', async (request, response) => {
         .json({ message: (data as ErrorResponse).message });
     }
 
+    if (filtersString) {
+      logger.info(
+        `GET Request to Githunter-Web-API in root path to get metrics of all repositories with filter: ${filtersString} successfully!`,
+      );
+    } else {
+      logger.info(
+        `GET Request to Githunter-Web-API in root path to get metrics of all repositories successfully!`,
+      );
+    }
+
     return response.status(200).json(data);
   } catch (err) {
+    if (filtersString) {
+      logger.info(
+        `GET Request to Githunter-Web-API in root path to get metrics of all repositories with filter: ${filtersString} failure! ${err.message}`,
+      );
+    } else {
+      logger.error(
+        `GET Request to Githunter-Web-API in root path to get metrics of all repositories failure! ${err.message}`,
+      );
+    }
     return response.status(500).send({ error: err.message });
   }
 });
