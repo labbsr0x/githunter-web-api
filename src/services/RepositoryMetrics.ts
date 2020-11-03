@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { config } from 'node-config-ts';
+import logger from '../config/logger';
 
 import Starws, {
   RepositoryStats,
@@ -178,7 +179,7 @@ class RepositoryMetrics {
           });
           responseData = responseData.concat(repos);
         } else {
-          console.log(`Error getting data from starws. \nmsg: ${response}`);
+          logger.error(`Error getting data from starws. ${response.message}`);
         }
       });
     }

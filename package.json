@@ -27,7 +27,8 @@
     "express": "^4.17.1",
     "moment": "^2.29.1",
     "node-config-ts": "^3.1.0",
-    "qs": "^6.9.4"
+    "qs": "^6.9.4",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.7",

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { config } from 'node-config-ts';
+import logger from '../config/logger';
 import HttpClient from './http-client';
 
 export interface RepositoryStats {
@@ -24,9 +25,6 @@ export interface StarwsRequest {
   node: string;
 }
 
-interface ReposStats {
-  data: RepositoryStats[];
-}
 export interface StarwsResponse {
   status: number;
   data: RepositoryStats[];
@@ -42,8 +40,8 @@ class Starws extends HttpClient {
   public async getRepositoriesStats(
     params: StarwsRequest,
   ): Promise<StarwsResponse> {
+    const path = config.githunterBindStarws.endpoints.metrics;
     try {
-      const path = config.githunterBindStarws.endpoints.metrics;
       const response = await this.instance.get<RepositoryStats[]>(path, {
         params,
       });
@@ -53,6 +51,9 @@ class Starws extends HttpClient {
         data: response.data,
       };
 
+      logger.info(
+        `GET Request data in Gihunter-Bind on path ${path} successfully!`,
+      );
       return starwsResp;
     } catch (err) {
       const starwsResp: StarwsResponse = {
@@ -60,6 +61,10 @@ class Starws extends HttpClient {
         data: [],
         message: err.message,
       };
+
+      logger.error(
+        `GET Request data in Gihunter-Bind on path ${path} failure! ${err.message}`,
+      );
       return starwsResp;
     }
   }

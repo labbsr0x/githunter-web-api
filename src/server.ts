@@ -3,6 +3,7 @@ import cors from 'cors';
 import { config } from 'node-config-ts';
 
 import routes from './routes';
+import logger from './config/logger';
 
 const app = express();
 
@@ -10,7 +11,7 @@ const startApp = () => {
   const { port } = config.server;
 
   app.listen(port, () => {
-    console.log(`Server started on localhost: ${port}`);
+    logger.info(`Server started on localhost: ${port}`);
   });
 };
 
