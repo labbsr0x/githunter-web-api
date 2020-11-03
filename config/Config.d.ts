@@ -12,7 +12,7 @@ declare module "node-config-ts" {
     nodes: Node,
     providers: string[],
     limit: number,
-    quantityDaysDefault: number
+    quantityDaysDefaultSearch: number
   }
   interface Node {
     repositoryStats: string

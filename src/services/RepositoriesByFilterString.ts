@@ -7,12 +7,8 @@ import Starws, {
   StarwsResponse,
 } from '../external-services/githunter-bind-starws';
 
-export interface RepositoryDataRequest {
-  startDateTime: moment.Moment | string; // default: 30 days ago
-  endDateTime: moment.Moment | string; // default: next 30 days
-  provider: string; // default: all
-  limit: string; // default: 100
-  languages: string | string[]; // default: all
+export interface FilterStringDataRequest {
+  filterString: string;
 }
 
 export interface ErrorResponse {
@@ -20,95 +16,73 @@ export interface ErrorResponse {
   status: number;
 }
 
-class RepositoryMetrics {
+class RepositoriesFilterString {
   private starws;
 
   private node: string;
 
   private providers: string[];
 
+  private quantityDaysDefaultSearch: number;
+
+  private limit: number;
+
   constructor() {
     this.starws = new Starws();
     this.node = config.githunterBindStarws.nodes.repositoryStats;
     this.providers = config.githunterBindStarws.providers;
+    this.quantityDaysDefaultSearch =
+      config.githunterBindStarws.quantityDaysDefaultSearch;
+    this.limit = config.githunterBindStarws.limit;
   }
 
   public async execute(
-    request: RepositoryDataRequest,
+    request: FilterStringDataRequest,
   ): Promise<RepositoryStats[] | ErrorResponse> {
-    const queryParamsValidate = RepositoryMetrics.validateRequest(request);
-    let dataStarws: RepositoryStats[] = await this.getData(queryParamsValidate);
-    if (dataStarws && dataStarws.length === 0) {
+    if (!request || !request.filterString) {
       const e: ErrorResponse = {
-        message: 'No data.',
+        message: 'Invalid request data',
         status: 200,
       };
       return e;
     }
-    dataStarws = RepositoryMetrics.groupByUniqueRepo(dataStarws);
-    dataStarws = RepositoryMetrics.sortByLastRepo(dataStarws);
-    const limit = Number(queryParamsValidate.limit);
-    if (queryParamsValidate.languages?.length > 0) {
-      const dataStarwsFilterByLangs = RepositoryMetrics.filterRepoByLanguages(
-        dataStarws,
-        queryParamsValidate.languages as string[],
-      );
-      return dataStarwsFilterByLangs.splice(0, limit);
+    const queryParamsValidate = this.validateParamsRequest();
+    let dataStarws = await this.getData(queryParamsValidate);
+    dataStarws = RepositoriesFilterString.groupByUniqueRepo(dataStarws);
+    dataStarws = RepositoriesFilterString.sortByLastRepo(dataStarws);
+    dataStarws = RepositoriesFilterString.searchByPathName(
+      dataStarws,
+      request.filterString,
+    );
+
+    if (dataStarws.length === 0) {
+      const e: ErrorResponse = {
+        message: 'There are no repositories with this name!',
+        status: 400,
+      };
+      return e;
     }
-    return dataStarws.splice(0, limit); // by default, last 100 repos OR limit ;
+    return dataStarws.splice(0, this.limit);
   }
 
-  private static validateRequest(
-    queryParams: RepositoryDataRequest,
-  ): RepositoryDataRequest {
-    const {
-      startDateTime,
-      endDateTime,
-      provider,
-      limit,
-      languages,
-    } = queryParams;
-
-    const queryParamsValidate = queryParams;
-
-    if (!startDateTime) {
-      queryParamsValidate.startDateTime = moment()
-        .subtract(30, 'days')
-        .format();
-    }
-
-    if (!endDateTime) {
-      queryParamsValidate.endDateTime = moment().format();
-    }
-
-    if (!provider) {
-      queryParamsValidate.provider = 'all';
-    }
-
-    if (!limit) {
-      queryParamsValidate.limit = '100';
-    }
-
-    if (languages) {
-      queryParamsValidate.languages = (languages as string).split(',');
-    }
+  private validateParamsRequest(): StarwsRequest {
+    const queryParamsValidate: StarwsRequest = {
+      startDateTime: moment()
+        .subtract(this.quantityDaysDefaultSearch, 'days')
+        .format(),
+      endDateTime: moment().format(),
+      provider: '',
+      node: '',
+    };
 
     return queryParamsValidate;
   }
 
   private async getData(
-    queryParams: RepositoryDataRequest,
+    queryParams: StarwsRequest,
   ): Promise<RepositoryStats[]> {
-    const providers: string[] = [];
-    if (queryParams.provider.match('all')) {
-      this.providers.forEach(provider => {
-        providers.push(provider);
-      });
-    }
-    providers.push(queryParams.provider);
-
     const promises: Promise<StarwsResponse>[] = [];
-    providers.forEach((provider: string) => {
+    this.providers.forEach((provider: string) => {
       const starwsQueryParams: StarwsRequest = {
         startDateTime: queryParams.startDateTime as string,
         endDateTime: queryParams.endDateTime as string,
@@ -173,23 +147,21 @@ class RepositoryMetrics {
     return sortedData;
   }
 
-  private static filterRepoByLanguages(
-    repos: RepositoryStats[],
-    languages: string[],
-  ): RepositoryStats[] {
-    const data: RepositoryStats[] = [];
-    repos.forEach(repository => {
-      if (repository.language?.length) {
-        const interception = languages.filter(value =>
-          repository.language.includes(value),
-        );
-        if (interception.length) {
-          data.push(repository);
-        }
+  private static searchByPathName(
+    data: RepositoryStats[],
+    filterString: string,
+  ): RepositoryStats[] | never[] {
+    const reposFiltered: RepositoryStats[] = [];
+    data.forEach(repository => {
+      if (repository.name.includes(filterString)) {
+        reposFiltered.push(repository);
+      }
+      if (repository.owner.includes(filterString)) {
+        reposFiltered.push(repository);
       }
     });
-    return data;
+    return reposFiltered;
   }
 }
 
-export default RepositoryMetrics;
+export default RepositoriesFilterString;
