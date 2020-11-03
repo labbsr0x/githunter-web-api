@@ -54,12 +54,15 @@ repositoriesRouter.get('/', async (request, response) => {
     const provider = filters.provider as string;
     const limit = filters.limit as string;
     const languages = filters.languages as string;
+    const filtersString = filters.filtersString as string;
+
     const repositoryRequest: RepositoryDataRequest = {
       startDateTime,
       endDateTime,
       provider,
       limit,
       languages,
+      filtersString,
     };
 
     const data:
