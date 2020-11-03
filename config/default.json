@@ -16,6 +16,8 @@
     "providers": [
       "github",
       "gitlab"
-    ]
+    ],
+    "limitDefault": "100",
+    "quantityDaysDefault": 365
   }
 }
