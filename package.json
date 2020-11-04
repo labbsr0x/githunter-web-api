@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/labbsr0x/githunter-web-api.git",
-  "author": "Ramon Ferreira <ramonfsk@gmail.com>",
+  "author": "",
   "license": "MIT",
   "engines": {
     "node": ">=10"
