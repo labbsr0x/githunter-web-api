@@ -11,9 +11,9 @@ import Starws, {
 export interface RepositoryDataRequest {
   startDateTime: moment.Moment | string; // default: 30 days ago
   endDateTime: moment.Moment | string; // default: next 30 days
-  provider: string; // default: all
+  providers: string[]; // default: all
   limit: string; // default: 100
-  languages: string | string[]; // default: all
+  languages: string[]; // default: all
   filtersString?: string;
 }
 
@@ -46,6 +46,7 @@ class RepositoryMetrics {
   ): Promise<RepositoryStats[] | ErrorResponse> {
     const queryParamsValidate = this.validateRequest(request);
     let dataStarws: RepositoryStats[] = await this.getData(queryParamsValidate);
+
     if (dataStarws && dataStarws.length === 0) {
       const e: ErrorResponse = {
         message: 'No data.',
@@ -53,9 +54,12 @@ class RepositoryMetrics {
       };
       return e;
     }
+
     dataStarws = RepositoryMetrics.groupByUniqueRepo(dataStarws);
     dataStarws = RepositoryMetrics.sortByLastRepo(dataStarws);
+
     const limit = Number(queryParamsValidate.limit);
+
     // Filter by language
     if (queryParamsValidate.languages?.length > 0) {
       const dataStarwsFilterByLangs = RepositoryMetrics.filterRepoByLanguages(
@@ -73,6 +77,7 @@ class RepositoryMetrics {
 
       return dataStarwsFilterByLangs.splice(0, limit);
     }
+
     // Filter by repository name or owner or both
     if (queryParamsValidate.filtersString) {
       const dataStarwsFilterByNameOwner = RepositoryMetrics.filterByNameOwner(
@@ -103,7 +108,7 @@ class RepositoryMetrics {
     const {
       startDateTime,
       endDateTime,
-      provider,
+      providers,
       limit,
       languages,
     } = queryParams;
@@ -121,8 +126,8 @@ class RepositoryMetrics {
       queryParamsValidate.endDateTime = moment().format();
     }
 
-    if (!provider) {
-      queryParamsValidate.provider = '';
+    if (!providers || providers.length === 0) {
+      queryParamsValidate.providers = this.providers;
     }
 
     if (!limit) {
@@ -130,7 +135,7 @@ class RepositoryMetrics {
     }
 
     if (languages) {
-      queryParamsValidate.languages = (languages as string).split(',');
+      queryParamsValidate.languages = languages;
     }
 
     return queryParamsValidate;
@@ -139,22 +144,15 @@ class RepositoryMetrics {
   private async getData(
     queryParams: RepositoryDataRequest,
   ): Promise<RepositoryStats[]> {
-    const providers: string[] = [];
-    if (!queryParams.provider) {
-      this.providers.forEach(provider => {
-        providers.push(provider);
-      });
-    }
-    providers.push(queryParams.provider);
-
     const promises: Promise<StarwsResponse>[] = [];
-    providers.forEach((provider: string) => {
+    queryParams.providers.forEach((provider: string) => {
       const starwsQueryParams: StarwsRequest = {
         startDateTime: queryParams.startDateTime as string,
         endDateTime: queryParams.endDateTime as string,
         provider,
         node: this.node,
       };
+
       const starWsResponses = this.starws.getRepositoriesStats(
         starwsQueryParams,
       );

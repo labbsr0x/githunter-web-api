@@ -57,16 +57,16 @@ repositoriesRouter.get('/', async (request, response) => {
   const filters = request.query;
   const startDateTime = filters.startDateTime as string;
   const endDateTime = filters.endDateTime as string;
-  const provider = filters.provider as string;
+  const providers = filters.providers as string[];
   const limit = filters.limit as string;
-  const languages = filters.languages as string;
+  const languages = filters.languages as string[];
   const filtersString = filters.filtersString as string;
 
   try {
     const repositoryRequest: RepositoryDataRequest = {
       startDateTime,
       endDateTime,
-      provider,
+      providers,
       limit,
       languages,
       filtersString,
