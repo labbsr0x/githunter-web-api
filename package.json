@@ -21,6 +21,7 @@
     }
   },
   "dependencies": {
+    "@labbsr0x/express-monitor": "^2.10.0",
     "axios": "^0.20.0",
     "config": "^3.3.2",
     "cors": "^2.8.5",
