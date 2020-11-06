@@ -8,16 +8,13 @@ import Starws, {
   StarwsResponse,
 } from '../external-services/githunter-bind-starws';
 
+import { ErrorResponse } from '../routes/repositories.router';
+
 export interface DataRequest {
   owner: string;
   name: string;
   startDateTime: string;
   endDateTime: string;
-}
-
-export interface ErrorResponse {
-  message: string;
-  status: number;
 }
 
 class RepositoryByName {
@@ -47,8 +44,7 @@ class RepositoryByName {
     let dataStarws = await this.getData(data);
     if (dataStarws?.length === 0) {
       const e: ErrorResponse = {
-        message: 'No data.',
-        status: 200,
+        status: 204,
       };
       return e;
     }
@@ -60,8 +56,7 @@ class RepositoryByName {
     );
     if (dataStarws?.length === 0) {
       const e: ErrorResponse = {
-        message: 'No data.',
-        status: 200,
+        status: 204,
       };
       return e;
     }
@@ -102,7 +97,9 @@ class RepositoryByName {
     let responseData: RepositoryStats[] = [];
     if (responses && responses.length > 0) {
       responses.forEach(response => {
-        if (response.status === 200 && response.data) {
+        if (response.status === 204) {
+          logger.info(`Oooops, no data content in AgroWS...retry later! ;).`);
+        } else if (response.status === 200 && response.data) {
           // Make dateTime as Moment
           const repos = response.data;
           repos.map((i: RepositoryStats) => {

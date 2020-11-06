@@ -2,14 +2,16 @@ import { Router } from 'express';
 import logger from '../config/logger';
 import { RepositoryStats } from '../external-services/githunter-bind-starws';
 
-import RepositoryByName, {
-  DataRequest,
-  ErrorResponse,
-} from '../services/RepositoryByName';
+import RepositoryByName, { DataRequest } from '../services/RepositoryByName';
 
 import RepositoryMetrics, {
   RepositoryDataRequest,
 } from '../services/RepositoryMetrics';
+
+export interface ErrorResponse {
+  status: number;
+  message?: string;
+}
 
 const repositoriesRouter = Router();
 const service = new RepositoryByName();

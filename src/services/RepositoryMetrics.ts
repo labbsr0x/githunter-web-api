@@ -8,6 +8,8 @@ import Starws, {
   StarwsResponse,
 } from '../external-services/githunter-bind-starws';
 
+import { ErrorResponse } from '../routes/repositories.router';
+
 export interface RepositoryDataRequest {
   startDateTime: moment.Moment | string; // default: 30 days ago
   endDateTime: moment.Moment | string; // default: next 30 days
@@ -15,11 +17,6 @@ export interface RepositoryDataRequest {
   limit: string; // default: 100
   languages: string | string[]; // default: all
   filtersString?: string;
-}
-
-export interface ErrorResponse {
-  message: string;
-  status: number;
 }
 
 class RepositoryMetrics {
@@ -48,7 +45,6 @@ class RepositoryMetrics {
     let dataStarws: RepositoryStats[] = await this.getData(queryParamsValidate);
     if (dataStarws && dataStarws.length === 0) {
       const e: ErrorResponse = {
-        message: 'No data.',
         status: 204,
       };
       return e;
@@ -65,7 +61,6 @@ class RepositoryMetrics {
       // if is empty
       if (dataStarwsFilterByLangs && dataStarwsFilterByLangs.length === 0) {
         const e: ErrorResponse = {
-          message: 'No data.',
           status: 204,
         };
         return e;
@@ -85,7 +80,6 @@ class RepositoryMetrics {
         dataStarwsFilterByNameOwner.length === 0
       ) {
         const e: ErrorResponse = {
-          message: 'No data.',
           status: 204,
         };
         return e;
@@ -145,7 +139,7 @@ class RepositoryMetrics {
         providers.push(provider);
       });
     }
-    providers.push(queryParams.provider);
+    // providers.push(queryParams.provider);
 
     const promises: Promise<StarwsResponse>[] = [];
     providers.forEach((provider: string) => {
@@ -167,7 +161,9 @@ class RepositoryMetrics {
     let responseData: RepositoryStats[] = [];
     if (responses?.length > 0) {
       responses.forEach(response => {
-        if (response.status === 200 && response.data) {
+        if (response.status === 204) {
+          logger.info(`Oooops, no data content in AgroWS...retry later! ;).`);
+        } else if (response.status === 200 && response.data) {
           // Make dateTime as Moment
           const repos = response.data;
           repos.map((i: RepositoryStats) => {
