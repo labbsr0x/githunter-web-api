@@ -27,7 +27,7 @@ export interface StarwsRequest {
 
 export interface StarwsResponse {
   status: number;
-  data: RepositoryStats[];
+  data?: RepositoryStats[];
   message?: string;
 }
 
@@ -45,6 +45,17 @@ class Starws extends HttpClient {
       const response = await this.instance.get<RepositoryStats[]>(path, {
         params,
       });
+
+      if (!response) {
+        const starwsResp: StarwsResponse = {
+          status: 204, // reponse empty!
+        };
+
+        logger.info(
+          `GET Request data in Gihunter-Bind on path ${path} , but no content...`,
+        );
+        return starwsResp;
+      }
 
       const starwsResp: StarwsResponse = {
         status: 200, // reponse it's okay!
