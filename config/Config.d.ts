@@ -4,6 +4,15 @@ declare module "node-config-ts" {
   interface IConfig {
     server: Server
     githunterBindStarws: GithunterBindStarws
+    githunterDataProvider: GithunterDataProvider
+  }
+  interface GithunterDataProvider {
+    host: string
+    port: number
+    endpoints: Endpoints2
+  }
+  interface Endpoints2 {
+    languages: string
   }
   interface GithunterBindStarws {
     host: string
