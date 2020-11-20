@@ -5,5 +5,8 @@
 
   "githunterBindStarws": {
     "host": "http://host.docker.internal"
+  },
+  "githunterDataProvider": {
+    "host": "http://host.docker.internal"
   }
 }

@@ -19,5 +19,12 @@
     ],
     "limitDefault": "100",
     "quantityDaysDefault": 365
+  },
+  "githunterDataProvider": {
+    "host": "http://localhost",
+    "port": 3333,
+    "endpoints": {
+      "languages": "/languages"
+    }
   }
 }
