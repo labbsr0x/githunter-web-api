@@ -22,7 +22,7 @@ abstract class HttpClient {
     );
   };
 
-  private handleResponse = ({ data }: AxiosResponse) => data;
+  private handleResponse = (response: AxiosResponse) => response;
 
   protected handleError = (error: any) => Promise.reject(error);
 }
