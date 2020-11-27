@@ -5,19 +5,32 @@ declare module "node-config-ts" {
     server: Server
     githunterBindStarws: GithunterBindStarws
     githunterDataProvider: GithunterDataProvider
+    githunterUserScore: GithunterUserScore
+  }
+
+  interface GithunterUserScore {
+    host: string
+    port: number
+    endpoints: EndpointsUserScore
+    limitDefault: string
+  }
+
+  interface EndpointsUserScore {
+    score: string
+    scoreUser: string
   }
   interface GithunterDataProvider {
     host: string
     port: number
-    endpoints: Endpoints2
+    endpoints: EndpointsDataProvider
   }
-  interface Endpoints2 {
+  interface EndpointsDataProvider {
     languages: string
   }
   interface GithunterBindStarws {
     host: string
     port: number
-    endpoints: Endpoints
+    endpoints: EndpointsBindStarws
     nodes: Nodes
     providers: string[]
     limitDefault: string
@@ -26,7 +39,7 @@ declare module "node-config-ts" {
   interface Nodes {
     repositoryStats: string
   }
-  interface Endpoints {
+  interface EndpointsBindStarws {
     metrics: string
   }
   interface Server {

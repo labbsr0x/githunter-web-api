@@ -11,7 +11,8 @@
       "metrics": "/metrics"
     },
     "nodes": {
-      "repositoryStats": "repositoryStats"
+      "repositoryStats": "repositoryStats",
+      "userStats": "userStats"
     },
     "providers": [
       "github",
@@ -26,5 +27,14 @@
     "endpoints": {
       "languages": "/languages"
     }
+  },
+  "githunterUserScore": {
+    "host": "http://localhost",
+    "port": 3009,
+    "endpoints": {
+      "score": "/score",
+      "scoreUser": "/score/user"
+    },
+    "limitDefault": "100"
   }
 }
