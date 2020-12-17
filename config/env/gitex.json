@@ -1,0 +1,9 @@
+{
+  "server": {
+    "url": "0.0.0.0"
+  },
+  "githunterBindStarws": {
+    "host": "http://starws",
+    "port": 3005
+  }
+}

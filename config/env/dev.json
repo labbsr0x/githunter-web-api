@@ -2,9 +2,9 @@
   "server": {
     "url": "0.0.0.0"
   },
-
   "githunterBindStarws": {
-    "host": "http://host.docker.internal"
+    "host": "http://host.docker.internal",
+    "port": 3005
   },
   "githunterDataProvider": {
     "host": "http://host.docker.internal"
