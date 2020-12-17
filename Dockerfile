@@ -24,7 +24,7 @@ RUN npm prune --production
 RUN /usr/local/bin/node-prune
 
 # Final image
-FROM node:12-alpine
+FROM mhart/alpine-node:14
 
 WORKDIR /app
 
@@ -33,7 +33,8 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/config ./config
 
-ENV NODE_ENV docker_dev
+ENV NODE_ENV=dev
+
 EXPOSE 5000
 
 CMD [ "node", "./dist/server.js" ]
