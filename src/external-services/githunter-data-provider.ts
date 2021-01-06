@@ -14,9 +14,20 @@ interface LanguageResponse {
   languages: Language[];
 }
 
+export interface Provider {
+  _id: string;
+  name: string;
+  createdAt: moment.Moment;
+  updatedAt: moment.Moment;
+}
+
+interface ProviderResponse {
+  providers: Provider[];
+}
+
 export interface Response {
   status: number;
-  data?: Language[];
+  data?: Language[] | Provider[];
   message?: string;
 }
 
@@ -37,6 +48,39 @@ class DataProvider extends HttpClient {
       const response: Response = {
         status: responseDataProvider.status,
         data: responseDataProvider.data.languages,
+      };
+
+      logger.info(
+        `GET Request data in Gihunter-Data-Provider on path ${path} successfully!`,
+      );
+
+      return response;
+    } catch (err) {
+      const response: Response = {
+        status: 400,
+        data: undefined,
+        message: err.message,
+      };
+
+      logger.error(
+        `GET Request data in Gihunter-Data-Provider on path ${path} failure! ${err.message}`,
+      );
+
+      return response;
+    }
+  }
+
+  public async getProviders(): Promise<Response> {
+    const path = config.githunterDataProvider.endpoints.providers;
+
+    try {
+      const responseDataProvider = await this.instance.get<ProviderResponse>(
+        path,
+      );
+
+      const response: Response = {
+        status: responseDataProvider.status,
+        data: responseDataProvider.data.providers,
       };
 
       logger.info(
