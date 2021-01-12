@@ -25,7 +25,8 @@
     "host": "http://localhost",
     "port": 3333,
     "endpoints": {
-      "languages": "/languages"
+      "languages": "/languages",
+      "providers": "/providers"
     }
   },
   "githunterUserScore": {

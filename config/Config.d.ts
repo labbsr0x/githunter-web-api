@@ -24,6 +24,7 @@ declare module "node-config-ts" {
   }
   interface Endpoints2 {
     languages: string
+    providers: string
   }
   interface GithunterBindStarws {
     host: string
