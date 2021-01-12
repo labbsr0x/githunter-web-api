@@ -215,7 +215,7 @@ class RepositoryMetrics {
     repos.forEach(repository => {
       if (repository.language?.length) {
         const interception = languages.filter(value =>
-          repository.language.includes(value),
+          repository.language.includes(value.toLowerCase()),
         );
         if (interception.length) {
           data.push(repository);
